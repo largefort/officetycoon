@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Office Tycoon</title>
+  <style>
+    /* Basic styling for the game */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+    }
+    .hidden {
+      display: none;
+    }
+    .button {
+      background-color: #008cba;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 16px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .stats {
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Setup Screen -->
+  <div class="container" id="setupScreen">
+    <h1>Office Tycoon</h1>
+    <p>Welcome! Please enter your company name to get started:</p>
+    <input type="text" id="companyNameInput" placeholder="Enter Company Name">
+    <button class="button" id="startButton">Start Game</button>
+  </div>
+
+  <!-- Game Screen (hidden at first) -->
+  <div class="container hidden" id="gameScreen">
+    <h1 id="companyNameDisplay"></h1>
+    <div class="stats">
+      <p>Money: $<span id="moneyDisplay">0</span></p>
+      <p>Office Workers: <span id="workersDisplay">0</span></p>
+      <p>Total Documents Produced: <span id="documentsDisplay">0</span></p>
+    </div>
+    <button class="button" id="hireWorkerButton">Hire Office Worker ($50)</button>
+    <button class="button" id="manualWorkButton">Produce Document Manually (+$1)</button>
+  </div>
+
+  <script>
+    // Initial game state variables
+    let companyName = "";
+    let money = 100;
+    let workers = 0;
+    let totalDocuments = 0;
+    const workerCost = 50;
+    const documentValue = 1; // Each document is now worth $1
+
+    // DOM elements
+    const setupScreen = document.getElementById("setupScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const companyNameInput = document.getElementById("companyNameInput");
+    const startButton = document.getElementById("startButton");
+    const companyNameDisplay = document.getElementById("companyNameDisplay");
+    const moneyDisplay = document.getElementById("moneyDisplay");
+    const workersDisplay = document.getElementById("workersDisplay");
+    const documentsDisplay = document.getElementById("documentsDisplay");
+    const hireWorkerButton = document.getElementById("hireWorkerButton");
+    const manualWorkButton = document.getElementById("manualWorkButton");
+
+    // Update the display stats
+    function updateDisplay() {
+      moneyDisplay.textContent = money.toFixed(2);
+      workersDisplay.textContent = workers;
+      documentsDisplay.textContent = totalDocuments;
+      
+      // Disable the hire button if there's not enough money
+      hireWorkerButton.disabled = (money < workerCost);
+    }
+
+    // Start the game when company name is submitted
+    startButton.addEventListener("click", function() {
+      companyName = companyNameInput.value.trim();
+      if(companyName === "") {
+        alert("Please enter a valid company name!");
+        return;
+      }
+      companyNameDisplay.textContent = companyName + " Office";
+      setupScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+      updateDisplay();
+    });
+
+    // Hire an office worker if you have enough money
+    hireWorkerButton.addEventListener("click", function() {
+      if(money >= workerCost) {
+        money -= workerCost;
+        workers++;
+        updateDisplay();
+      }
+    });
+
+    // Manually produce a document for extra revenue
+    manualWorkButton.addEventListener("click", function() {
+      totalDocuments++;
+      money += documentValue;
+      updateDisplay();
+    });
+
+    // Idle production: each worker produces 1 document per second
+    setInterval(function() {
+      if(workers > 0) {
+        let documentsProduced = workers; // 1 document per worker per second
+        totalDocuments += documentsProduced;
+        money += documentsProduced * documentValue;
+        updateDisplay();
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
